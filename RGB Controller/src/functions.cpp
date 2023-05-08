@@ -72,18 +72,18 @@ void start(void)
 //-----------------------------------------------------------------------------------------
 void animationProcess(void)
 {
-	return;
-	switch( app.animationNum ){
-		case 1:
-			if( app.animationCounter ){
+	// return;
+	// switch( app.animationNum ){
+	// 	case 1:
+	// 		if( app.animationCounter ){
 
-				app.animationCounter--;
-			}else{
-				app.animationNum = 0;
-				clearAll();
-			}
-		break;
-	}
+	// 			app.animationCounter--;
+	// 		}else{
+	// 			app.animationNum = 0;
+	// 			clearAll();
+	// 		}
+	// 	break;
+	// }
 }
 
 //-----------------------------------------------------------------------------------------
@@ -91,10 +91,42 @@ void clearAll(void)
 {
 	if( app.flags.use_lenta1 ) lenta_clear( lenta1 );
 	if( app.flags.use_lenta2 ) lenta_clear( lenta2 );
+	if( app.flags.use_lenta3 ) lenta_clear( lenta3 );
+	if( app.flags.use_lenta4 ) lenta_clear( lenta4 );
+	if( app.flags.use_lenta5 ) lenta_clear( lenta5 );
 }
 
 //-----------------------------------------------------------------------------------------
+void getPageHeadler(void)
+{
+	strcpy( pageBuff, "{\"mode\": " );
+	strcat( pageBuff, utoa( app.mode, esp::tmpVal, 10 ) );
+
+	// strcat( pageBuff, ",\"status1\":" ); strcat( pageBuff, utoa( app.status_1, esp::tmpVal, 10 ) );
+	// strcat( pageBuff, ",\"status2\":" ); strcat( pageBuff, utoa( app.status_2, esp::tmpVal, 10 ) );
+	// strcat( pageBuff, ",\"status3\":" ); strcat( pageBuff, utoa( app.status_3, esp::tmpVal, 10 ) );
+
+	strcat( pageBuff, ",\"lents\": {" );
+		strcat( pageBuff, "\"1\": {\"use\":" ); strcat( pageBuff, utoa( app.flags.use_lenta1, esp::tmpVal, 10 ) );
+		strcat( pageBuff, ",\"leds\":" ); strcat( pageBuff, utoa( app.lenta1_leds, esp::tmpVal, 10 ) ); strcat( pageBuff, "}" );
+		strcat( pageBuff, ",\"2\": {\"use\":" ); strcat( pageBuff, utoa( app.flags.use_lenta2, esp::tmpVal, 10 ) );
+		strcat( pageBuff, ",\"leds\":" ); strcat( pageBuff, utoa( app.lenta2_leds, esp::tmpVal, 10 ) ); strcat( pageBuff, "}" );
+		strcat( pageBuff, ",\"3\": {\"use\":" ); strcat( pageBuff, utoa( app.flags.use_lenta3, esp::tmpVal, 10 ) );
+		strcat( pageBuff, ",\"leds\":" ); strcat( pageBuff, utoa( app.lenta3_leds, esp::tmpVal, 10 ) ); strcat( pageBuff, "}" );
+		strcat( pageBuff, ",\"4\": {\"use\":" ); strcat( pageBuff, utoa( app.flags.use_lenta4, esp::tmpVal, 10 ) );
+		strcat( pageBuff, ",\"leds\":" ); strcat( pageBuff, utoa( app.lenta4_leds, esp::tmpVal, 10 ) ); strcat( pageBuff, "}" );
+		strcat( pageBuff, ",\"5\": {\"use\":" ); strcat( pageBuff, utoa( app.flags.use_lenta5, esp::tmpVal, 10 ) );
+		strcat( pageBuff, ",\"leds\":" ); strcat( pageBuff, utoa( app.lenta5_leds, esp::tmpVal, 10 ) ); strcat( pageBuff, "}" );
+	strcat( pageBuff, "}}" );
+	webServer.send ( 200, "application/json", pageBuff );
+}
+
 //-----------------------------------------------------------------------------------------
+void indexPageHeadler(void)
+{
+	esp::webSendFile( &webServer, "/index.html", "text/html" );
+}
+
 //-----------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------

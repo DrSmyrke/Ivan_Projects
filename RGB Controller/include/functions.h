@@ -22,6 +22,8 @@ void setBrightness(Adafruit_NeoPixel &lenta, const uint8_t value);
 void start(void);
 void animationProcess(void);
 void clearAll(void);
+void getPageHeadler(void);
+void indexPageHeadler(void);
 
 //-----------------------------------------------------------------------------------------
 

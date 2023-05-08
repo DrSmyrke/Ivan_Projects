@@ -51,8 +51,12 @@ struct AppData{
 		unsigned char use_lenta4								: 1;
 		unsigned char use_lenta5								: 1;
 	} flags;
-	uint8_t animationNum;
-	uint16_t animationCounter;
+	uint8_t mode;
+	uint8_t lenta1_leds;
+	uint8_t lenta2_leds;
+	uint8_t lenta3_leds;
+	uint8_t lenta4_leds;
+	uint8_t lenta5_leds;
 };
 
 //----------- VARIABLES --------------------------------------------------------------------
@@ -61,9 +65,9 @@ extern AppData app;
 extern ESP8266WebServer webServer;
 extern Adafruit_NeoPixel lenta1;
 extern Adafruit_NeoPixel lenta2;
-// extern Adafruit_NeoPixel lenta3;
-// extern Adafruit_NeoPixel lenta4;
-// extern Adafruit_NeoPixel lenta5;
+extern Adafruit_NeoPixel lenta3;
+extern Adafruit_NeoPixel lenta4;
+extern Adafruit_NeoPixel lenta5;
 extern char pageBuff[ WEB_PAGE_BUFF_SIZE ];
 extern Pixel rainbow[ 7 ];
 

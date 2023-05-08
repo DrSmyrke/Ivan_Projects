@@ -10,9 +10,9 @@ Timer timer1( 0, 25, timer1Interrupt );
 // CRGB leds2[ LENTA2_COUNT ];
 Adafruit_NeoPixel lenta1( LENTA1_COUNT, LENTA1_PIN, NEO_GRB + NEO_KHZ800 );
 Adafruit_NeoPixel lenta2( LENTA2_COUNT, LENTA2_PIN, NEO_GRB + NEO_KHZ800 );
-// Adafruit_NeoPixel lenta3( LENTA3_COUNT, LENTA3_PIN, NEO_GRB + NEO_KHZ800 );
-// Adafruit_NeoPixel lenta4( LENTA4_COUNT, LENTA4_PIN, NEO_GRB + NEO_KHZ800 );
-// Adafruit_NeoPixel lenta5( LENTA5_COUNT, LENTA5_PIN, NEO_GRB + NEO_KHZ800 );
+Adafruit_NeoPixel lenta3( LENTA3_COUNT, LENTA3_PIN, NEO_GRB + NEO_KHZ800 );
+Adafruit_NeoPixel lenta4( LENTA4_COUNT, LENTA4_PIN, NEO_GRB + NEO_KHZ800 );
+Adafruit_NeoPixel lenta5( LENTA5_COUNT, LENTA5_PIN, NEO_GRB + NEO_KHZ800 );
 char pageBuff[ WEB_PAGE_BUFF_SIZE ];
 Pixel rainbow[ 7 ];
 
@@ -26,20 +26,23 @@ void setup()
 	app.flags.use_lenta3					= 0;
 	app.flags.use_lenta4					= 0;
 	app.flags.use_lenta5					= 0;
-	app.animationNum						= 0;
-	app.animationCounter					= 0;
+	app.mode								= 0;
+	app.lenta1_leds							= LENTA1_COUNT;
+	app.lenta2_leds							= LENTA2_COUNT;
+	app.lenta3_leds							= LENTA3_COUNT;
+	app.lenta4_leds							= LENTA4_COUNT;
+	app.lenta5_leds							= LENTA5_COUNT;
 
 	ESP.wdtEnable( 10000 );
 
 	esp::init();
+	esp::setVersion( 0, 1, FIRMWARE_REVISION );
 	
 	pinMode( LED_BUILTIN, OUTPUT );
 	
 #ifdef __DEV
 	while( !Serial );
 	Serial.begin( 115200 );
-	app.flags.use_lenta1 = 1;
-	app.flags.use_lenta2 = 1;
 #endif
 	ESP_DEBUG( "INIT...\n" );
 
@@ -48,13 +51,29 @@ void setup()
 	// FastLED.addLeds<NEOPIXEL, LENTA1_PIN>( leds1, LENTA1_COUNT );
 
 	if( app.flags.use_lenta1 ){
+		lenta1.updateLength( app.lenta1_leds );
 		lenta1.begin();
 		lenta_clear( lenta1 );
 	}
-
 	if( app.flags.use_lenta2 ){
+		lenta2.updateLength( app.lenta2_leds );
 		lenta2.begin();
 		lenta_clear( lenta2 );
+	}
+	if( app.flags.use_lenta3 ){
+		lenta3.updateLength( app.lenta3_leds );
+		lenta3.begin();
+		lenta_clear( lenta3 );
+	}
+	if( app.flags.use_lenta4 ){
+		lenta4.updateLength( app.lenta4_leds );
+		lenta4.begin();
+		lenta_clear( lenta4 );
+	}
+	if( app.flags.use_lenta5 ){
+		lenta5.updateLength( app.lenta5_leds );
+		lenta5.begin();
+		lenta_clear( lenta5 );
 	}
 
 
@@ -70,6 +89,7 @@ void setup()
 	//Инициализация Web сервера
 	esp::pageBuff = pageBuff;
 	esp::addWebServerPages( &webServer, true, true, true );
+	esp::addWebUpdate( &webServer, "" );
 	// webServer.on( "/storageReset", [ webServer ](void){
 	// 	if( esp::checkWebAuth( &webServer, SYSTEM_LOGIN, SYSTEM_PASSWORD, ESP_AUTH_REALM, "access denied" ) ){
 	// 		webServer.send ( 200, "text/html", "OK" );
@@ -77,8 +97,9 @@ void setup()
 	// 		ESP.reset();
 	// 	}
 	// } );
-	// webServer.on( "/", indexPageHeadler );
-	// webServer.on( "/get", getPageHeadler );
+	webServer.on( "/", indexPageHeadler );
+	if( !esp::flags.ap_mode ) webServer.onNotFound( indexPageHeadler );
+	webServer.on( "/get", getPageHeadler );
 	webServer.begin();
 
 
@@ -110,6 +131,15 @@ void loop()
 
 		animationProcess();
 	}
+
+
+
+
+	webServer.handleClient();
+
+	if( esp::flags.ap_mode ){
+		dnsServer.processNextRequest();
+	}
 }
 
 //-----------------------------------------------------------------------------------------
@@ -129,8 +159,14 @@ void saveSettings(void)
 {
 	ESP_DEBUG( "Save settings\n" );
 
-	uint8_t data[ 5 ];
+	uint8_t data[ 7 ];
 	data[ 0 ]								= 0;
+	data[ 1 ]								= app.lenta1_leds;
+	data[ 2 ]								= app.lenta2_leds;
+	data[ 3 ]								= app.lenta3_leds;
+	data[ 4 ]								= app.lenta4_leds;
+	data[ 5 ]								= app.lenta5_leds;
+	data[ 6 ]								= app.mode;
 
 	if( app.flags.use_lenta1 ) setPlus( data[ 0 ], 0 );
 	if( app.flags.use_lenta2 ) setPlus( data[ 0 ], 1 );
@@ -146,13 +182,20 @@ void loadSettings(void)
 {
 	ESP_DEBUG( "Load settings\n" );
 
-	uint8_t data[ 5 ];
+	uint8_t data[ 7 ];
 	if( esp::loadSettings( data, sizeof( data ) ) == sizeof( data ) ){
 		app.flags.use_lenta1				= CheckBit( data[ 0 ], 0 );
 		app.flags.use_lenta2				= CheckBit( data[ 0 ], 1 );
 		app.flags.use_lenta3				= CheckBit( data[ 0 ], 2 );
 		app.flags.use_lenta4				= CheckBit( data[ 0 ], 3 );
 		app.flags.use_lenta5				= CheckBit( data[ 0 ], 4 );
+		
+		app.lenta1_leds						= data[ 1 ];
+		app.lenta2_leds						= data[ 2 ];
+		app.lenta3_leds						= data[ 3 ];
+		app.lenta4_leds						= data[ 4 ];
+		app.lenta5_leds						= data[ 5 ];
+		app.mode							= data[ 6 ];
 	}
 
 #ifdef __DEV
