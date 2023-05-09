@@ -118,7 +118,7 @@ void setStage2(void)
 
 	stage = 2;
 
-	setLed( showLeds[ subStage ], 0, 0, 0xFF ); pixels.show();
+	setLed( showLeds[ subStage ], 0, 0, 0xFF ); pixels.show(); beep( 700, 550 );
 }
 
 //==============================================================================
@@ -147,7 +147,7 @@ void processStage2(const uint8_t button)
 
 	if( button == lampNum ){
 		setLed( ledNum, 0, 0xFF, 0 ); pixels.show(); delay( 500 );
-		setLed( ledNum, 0, 0, 0 ); pixels.show(); delay( 500 );
+		// setLed( ledNum, 0, 0, 0 ); pixels.show(); delay( 500 );
 		subStage++;
 		if( subStage >= LEDS_COUNT ){
 			setStage3();
@@ -272,6 +272,8 @@ void unlock(void)
 #else
 	digitalWrite( PIN_SERVO, HIGH );
 #endif
+	//Задержка в 10 сек.
+	delay( 100000 );
 }
 
 //==============================================================================
