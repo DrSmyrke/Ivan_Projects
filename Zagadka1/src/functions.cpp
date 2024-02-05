@@ -59,11 +59,14 @@ void setLed(const uint8_t ledNum, uint8_t r, uint8_t g, uint8_t b)
 //==============================================================================
 void setStage1(void)
 {
-	stage = 1;
+	stage = Stage::start;
 	
-	beep( 100, 550 );
+	// beep( 100, 550 );
+	myDFPlayer.playMp3Folder( MELODY_START );
+	delay( 2000 );
 
 	for( uint8_t i = 0; i < LEDS_COUNT; i++ ){
+		myDFPlayer.playMp3Folder( MELODY_BEEP );
 		onLamp( keys[ keyNum ][ i ] );
 		setLed( i, 0, 0, 255 ); pixels.show();
 		delay( 1000 );
@@ -116,15 +119,16 @@ void setStage2(void)
 	Serial.println( "]" );
 #endif
 
-	stage = 2;
+	stage = Stage::game;
 
-	setLed( showLeds[ subStage ], 0, 0, 0xFF ); pixels.show(); beep( 700, 550 );
+	setLed( showLeds[ subStage ], 0, 0, 0xFF ); pixels.show(); //beep( 700, 550 );
+	myDFPlayer.playMp3Folder( MELODY_BEEP );
 }
 
 //==============================================================================
 void processStage2(const uint8_t button)
 {
-	beep( 700, 550 );
+	// beep( 700, 550 );
 
 	uint8_t ledNum = showLeds[ subStage ];
 	uint8_t lampNum = keys[ keyNum ][ ledNum ];
@@ -148,6 +152,7 @@ void processStage2(const uint8_t button)
 	if( button == lampNum ){
 		setLed( ledNum, 0, 0xFF, 0 ); pixels.show(); delay( 500 );
 		// setLed( ledNum, 0, 0, 0 ); pixels.show(); delay( 500 );
+		myDFPlayer.playMp3Folder( MELODY_TRUE );
 		subStage++;
 		if( subStage >= LEDS_COUNT ){
 			setStage3();
@@ -156,53 +161,64 @@ void processStage2(const uint8_t button)
 		}
 	}else{
 		setLed( ledNum, 0xFF, 0, 0 ); pixels.show(); delay( 500 );
-		beep( 700, 550 ); beep( 700, 550 );
+		// beep( 700, 550 ); beep( 700, 550 );
+		myDFPlayer.playMp3Folder( MELODY_FALSE );
 		pixels.clear();
 		pixels.show();
-		stage = 0;
+		stage = Stage::init;
 	}
 }
 
 //==============================================================================
 void setStage3(void)
 {
-	stage = 3;
+	stage = Stage::game_end;
 
 	time = millis();
 
 	pixels.clear(); pixels.show();
+	myDFPlayer.playMp3Folder( MELODY_SUCCESS );
 
-	beep( 400, 250 );
+	// beep( 400, 250 );
 	for( uint8_t i = 0; i < LEDS_COUNT; i++ ) setLed( i, 0, 0xFF, 0 );
 	pixels.show();
 
 	delay( 500 ); pixels.clear(); pixels.show(); delay( 500 );
 
-	beep( 400, 250 );
+	// beep( 400, 250 );
 	for( uint8_t i = 0; i < LEDS_COUNT; i++ ) setLed( i, 0, 0xFF, 0 );
 	pixels.show();
 
 	delay( 500 ); pixels.clear(); pixels.show(); delay( 500 );
 
-	beep( 400, 250 );
+	// beep( 400, 250 );
 	for( uint8_t i = 0; i < LEDS_COUNT; i++ ) setLed( i, 0, 0xFF, 0 );
 	pixels.show();
 
 	delay( 500 ); pixels.clear(); pixels.show(); delay( 500 );
 
-	beep( 400, 250 );
+	// beep( 400, 250 );
 	for( uint8_t i = 0; i < LEDS_COUNT; i++ ) setLed( i, 0, 0xFF, 0 );
 	pixels.show();
 
 	delay( 500 ); pixels.clear(); pixels.show(); delay( 500 );
 
-	beep( 400, 250 );
+	// beep( 400, 250 );
 	for( uint8_t i = 0; i < LEDS_COUNT; i++ ) setLed( i, 0, 0xFF, 0 );
 	pixels.show();
 
 	delay( 500 ); pixels.clear(); pixels.show();
 
+	myDFPlayer.playMp3Folder( MELODY_END );
+
 	unlock();
+
+	//Задержка в 10 сек.
+	delay( 100000 );
+
+	stage = Stage::wait_to_reset;
+	reset_counter = SECS_BEFORE_RESET;
+	time = millis();
 }
 
 //==============================================================================
@@ -213,7 +229,7 @@ void setStage3(void)
 void setStageError(void)
 {
 	pixels.clear();
-	stage = 0;
+	stage = Stage::init;
 }
 
 //==============================================================================
@@ -272,8 +288,6 @@ void unlock(void)
 #else
 	digitalWrite( PIN_SERVO, HIGH );
 #endif
-	//Задержка в 10 сек.
-	delay( 100000 );
 }
 
 //==============================================================================

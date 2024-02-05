@@ -4,10 +4,14 @@
 //========== DEFINES ===========================================================
 //========== STRUCTURES ========================================================
 //========== VARIABLES =========================================================
+uint8_t reset_counter;
 uint8_t stage;
 uint8_t subStage;
 uint8_t keyNum;
 long time;
+
+SoftwareSerial softSerial( /*rx =*/3, /*tx =*/4 );
+DFRobotDFPlayerMini myDFPlayer;
 
 // extern "C" {
 	uint8_t keys[][ LEDS_COUNT ] = {
@@ -83,7 +87,7 @@ Adafruit_NeoPixel pixels( LEDS_COUNT, PIN_LEDS, NEO_GRB + NEO_KHZ800 );
 //========== FUNCTIONS =========================================================
 void setup()
 {
-	stage					= 0;
+	stage					= Stage::init;
 	keyNum					= 0;
 
 	pinMode( PIN_LAMP1, OUTPUT );
@@ -100,6 +104,18 @@ void setup()
 	pinMode( PIN_BUTTON_END, INPUT );
 	pinMode( PIN_BUTTON_START, INPUT );
 	pinMode( PIN_RANDOM, INPUT );
+
+	softSerial.begin( 9600 );
+	if( !myDFPlayer.begin( softSerial, /*isACK = */true, /*doReset = */true)) {  //Use serial to communicate with mp3.
+#ifdef __DEV
+		Serial.println(F("Unable to begin:"));
+		Serial.println(F("1.Please recheck the connection!"));
+		Serial.println(F("2.Please insert the SD card!"));
+#endif
+		while( 1 ) delay(0); // Code to compatible with ESP8266 watch dog.
+	}
+	myDFPlayer.volume( 10 );
+	myDFPlayer.playMp3Folder( MELODY_INIT );
 
 
 
@@ -187,41 +203,58 @@ void setup()
 void loop()
 {
 	if( isPressButton( PIN_BUTTON_START ) ){
-		if( stage == 0 ){
+		if( stage == Stage::init ){
 			setStage1();
 		}
 	}
 
 	if( isPressButton( PIN_BUTTON1 ) ){
-		if( stage == 0 || stage == 2 || stage == 3 ) onLamp( 1 );
-		if( stage == 2 ) processStage2( 1 );
+		if( stage == Stage::init || stage == Stage::game || stage == Stage::game_end ) onLamp( 1 );
+		if( stage == Stage::game ) processStage2( 1 );
 	}else{
-		if( stage == 0 || stage == 2 || stage == 3 ) offLamp( 1 );
+		if( stage == Stage::init || stage == Stage::game || stage == Stage::game_end ) offLamp( 1 );
 	}
 
 	if( isPressButton( PIN_BUTTON2 ) ){
-		if( stage == 0 || stage == 2 || stage == 3 ) onLamp( 2 );
-		if( stage == 2 ) processStage2( 2 );
+		if( stage == Stage::init || stage == Stage::game || stage == Stage::game_end ) onLamp( 2 );
+		if( stage == Stage::game ) processStage2( 2 );
 	}else{
-		if( stage == 0 || stage == 2 || stage == 3 ) offLamp( 2 );
+		if( stage == Stage::init || stage == Stage::game || stage == Stage::game_end ) offLamp( 2 );
 	}
 
 	if( isPressButton( PIN_BUTTON3 ) ){
-		if( stage == 0 || stage == 2 || stage == 3 ) onLamp( 3 );
-		if( stage == 2 ) processStage2( 3 );
+		if( stage == Stage::init || stage == Stage::game || stage == Stage::game_end ) onLamp( 3 );
+		if( stage == Stage::game ) processStage2( 3 );
 	}else{
-		if( stage == 0 || stage == 2 || stage == 3 ) offLamp( 3 );
+		if( stage == Stage::init || stage == Stage::game || stage == Stage::game_end ) offLamp( 3 );
 	}
 	
 	if( isPressButton( PIN_BUTTON4 ) ){
-		if( stage == 0 || stage == 2 || stage == 3 ) onLamp( 4 );
-		if( stage == 2 ) processStage2( 4 );
+		if( stage == Stage::init || stage == Stage::game || stage == Stage::game_end ) onLamp( 4 );
+		if( stage == Stage::game ) processStage2( 4 );
 	}else{
-		if( stage == 0 || stage == 2 || stage == 3 ) offLamp( 4 );
+		if( stage == Stage::init || stage == Stage::game || stage == Stage::game_end ) offLamp( 4 );
 	}
 
 	if( isPressButton( PIN_BUTTON_END ) ){
 		setStage3();
+	}
+
+	if( stage == Stage::wait_to_reset ){
+		if( reset_counter  ){
+			unsigned long currentMillis = millis();
+			if( currentMillis - time > 1000 ){
+				reset_counter--;
+				if( reset_counter == 0 ){
+					lock();
+					stage = Stage::init;
+				}
+				time = millis();
+			}
+		}else{
+			lock();
+			stage = Stage::init;
+		}
 	}
 }
 

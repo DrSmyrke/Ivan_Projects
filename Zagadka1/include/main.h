@@ -3,6 +3,8 @@
 
 #include <Arduino.h>
 #include <Adafruit_NeoPixel.h>
+#include <DFRobotDFPlayerMini.h>
+#include <SoftwareSerial.h>
 
 #ifdef __SERVO
 	#include <Servo.h>
@@ -46,17 +48,42 @@
 #define PIN_RANDOM											A1
 #define PIN_BEEPER											13
 
+#define SECS_BEFORE_RESET									60
+
 #define LEDS_COUNT											6
 #define LAMPS_COUNT											4
 
+/// MP3 Player
+#define MELODY_INIT											0
+#define MELODY_START										1
+#define MELODY_BEEP											2
+#define MELODY_FALSE										3
+#define MELODY_TRUE											4
+#define MELODY_SUCCESS										5
+#define MELODY_END											6
+
 //========== STRUCTURES ========================================================
+struct Stage
+{
+	enum{
+		init,
+		start,
+		game,
+		game_end,
+		wait_to_reset,
+	};
+};
+
 //========== VARIABLES =========================================================
+extern uint8_t reset_counter;
 extern uint8_t stage;
 extern uint8_t subStage;
 extern uint8_t keyNum;
 extern uint8_t keys[][ LEDS_COUNT ];
 extern Adafruit_NeoPixel pixels;
 extern long time;
+extern SoftwareSerial softSerial;
+extern DFRobotDFPlayerMini myDFPlayer;
 
 #ifdef __SERVO
 	extern Servo servo;
