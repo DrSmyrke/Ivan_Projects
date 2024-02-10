@@ -10,7 +10,7 @@ uint8_t subStage;
 uint8_t keyNum;
 long time;
 
-SoftwareSerial softSerial( /*rx =*/3, /*tx =*/4 );
+SoftwareSerial softSerial( PLAYER_RX, PLAYER_TX );
 DFRobotDFPlayerMini myDFPlayer;
 
 // extern "C" {
@@ -114,10 +114,8 @@ void setup()
 #endif
 		while( 1 ) delay(0); // Code to compatible with ESP8266 watch dog.
 	}
-	myDFPlayer.volume( 10 );
+	myDFPlayer.volume( 15 );
 	myDFPlayer.playMp3Folder( MELODY_INIT );
-
-
 
 #ifdef __SERVO
 	servo.attach( PIN_SERVO );
@@ -154,13 +152,13 @@ void setup()
 
 
 
-	beep( 500, 1000 );
+	// beep( 500, 1000 );
 	// startMelody();
 	// beep( 250, 500 );
 	// beep( 300, 100 );
 	// beep( 250, 500 );
-	beep( 400, 500 );
-	beep( 250, 100 );
+	// beep( 400, 500 );
+	// beep( 250, 100 );
 	
 
 	uint32_t seed = 0;

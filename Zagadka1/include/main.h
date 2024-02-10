@@ -45,7 +45,7 @@
 	#define PIN_LEDS										8
 #endif
 
-#define PIN_RANDOM											A1
+#define PIN_RANDOM											A6
 #define PIN_BEEPER											13
 
 #define SECS_BEFORE_RESET									60
@@ -54,6 +54,8 @@
 #define LAMPS_COUNT											4
 
 /// MP3 Player
+#define PLAYER_TX											A1
+#define PLAYER_RX											A2
 #define MELODY_INIT											0
 #define MELODY_START										1
 #define MELODY_BEEP											2
