@@ -60,6 +60,10 @@ void setLed(const uint8_t ledNum, uint8_t r, uint8_t g, uint8_t b)
 void setStage1(void)
 {
 	stage = Stage::start;
+
+#ifdef __DEV
+	Serial.println( "Stage1" );
+#endif
 	
 	// beep( 100, 550 );
 	myDFPlayer.playMp3Folder( MELODY_START );
@@ -85,6 +89,10 @@ void setStage2(void)
 {
 	subStage = 0;
 	uint8_t j;
+
+#ifdef __DEV
+	Serial.println( "Stage2" );
+#endif
 
 	//clear array
 	for( j = 0; j < LEDS_COUNT; j++ ) showLeds[ j ] = 0xFF;
@@ -173,6 +181,10 @@ void processStage2(const uint8_t button)
 void setStage3(void)
 {
 	stage = Stage::game_end;
+
+#ifdef __DEV
+	Serial.println( "Stage3" );
+#endif
 
 	time = millis();
 
@@ -273,6 +285,9 @@ void startMelody(void)
 //==============================================================================
 void lock(void)
 {
+#ifdef __DEV
+	Serial.println( "lock" );
+#endif
 #ifdef __SERVO
 	servo.write( 0 );
 #else
@@ -283,6 +298,9 @@ void lock(void)
 //==============================================================================
 void unlock(void)
 {
+#ifdef __DEV
+	Serial.println( "unlock" );
+#endif
 #ifdef __SERVO
 	servo.write( 180 );
 #else
