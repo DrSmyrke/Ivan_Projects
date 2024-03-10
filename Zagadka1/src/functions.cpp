@@ -129,7 +129,7 @@ void setStage2(void)
 
 	stage = Stage::game;
 
-	setLed( showLeds[ subStage ], 0, 0, 0xFF ); pixels.show(); //beep( 700, 550 );
+	setLed( showLeds[ subStage ], 100, 100, 0 ); pixels.show(); //beep( 700, 550 );
 	myDFPlayer.playMp3Folder( MELODY_BEEP );
 }
 
@@ -165,7 +165,7 @@ void processStage2(const uint8_t button)
 		if( subStage >= LEDS_COUNT ){
 			setStage3();
 		}else{
-			setLed( showLeds[ subStage ], 0, 0, 0xFF ); pixels.show();
+			setLed( showLeds[ subStage ], 100, 100, 0 ); pixels.show();
 		}
 	}else{
 		setLed( ledNum, 0xFF, 0, 0 ); pixels.show(); delay( 500 );
@@ -229,9 +229,9 @@ void setStage3(void)
 	myDFPlayer.playMp3Folder( MELODY_END );
 
 	unlock();
-
 	//Задержка в 10 сек.
-	// delay( 10000 );
+	delay( 10000 );
+	lock();
 
 	stage = Stage::wait_to_reset;
 	reset_counter = SECS_BEFORE_RESET;
