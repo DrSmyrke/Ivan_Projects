@@ -95,7 +95,7 @@ void setup()
 	pinMode( PIN_LAMP3, OUTPUT );
 	pinMode( PIN_LAMP4, OUTPUT );
 
-	pinMode( PIN_BEEPER, INPUT );
+	// pinMode( PIN_BEEPER, INPUT );
 
 	pinMode( PIN_BUTTON1, INPUT );
 	pinMode( PIN_BUTTON2, INPUT );
@@ -112,7 +112,7 @@ void setup()
 		Serial.println(F("1.Please recheck the connection!"));
 		Serial.println(F("2.Please insert the SD card!"));
 #endif
-		while( 1 ) delay(0); // Code to compatible with ESP8266 watch dog.
+		// while( 1 ) delay(0); // Code to compatible with ESP8266 watch dog.
 	}
 	myDFPlayer.volume( 15 );
 	myDFPlayer.playMp3Folder( MELODY_INIT );

@@ -186,6 +186,11 @@ void setStage3(void)
 	Serial.println( "Stage3" );
 #endif
 
+	offLamp( 1 );
+	offLamp( 2 );
+	offLamp( 3 );
+	offLamp( 4 );
+
 	time = millis();
 
 	pixels.clear(); pixels.show();
@@ -226,7 +231,7 @@ void setStage3(void)
 	unlock();
 
 	//Задержка в 10 сек.
-	delay( 100000 );
+	// delay( 10000 );
 
 	stage = Stage::wait_to_reset;
 	reset_counter = SECS_BEFORE_RESET;
@@ -247,7 +252,7 @@ void setStageError(void)
 //==============================================================================
 void beep(const uint16_t on, const uint16_t off)
 {
-	tone( PIN_BEEPER, on, off );
+	// tone( PIN_BEEPER, on, off );
 	// digitalWrite( PIN_BEEPER, HIGH ); delay( on );
 	// digitalWrite( PIN_BEEPER, LOW ); delay( off );
 	// tone( PIN_BEEPER, on, off );
