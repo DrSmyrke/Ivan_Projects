@@ -72,7 +72,7 @@ void setStage1(void)
 	for( uint8_t i = 0; i < LEDS_COUNT; i++ ){
 		myDFPlayer.playMp3Folder( MELODY_BEEP );
 		onLamp( keys[ keyNum ][ i ] );
-		setLed( i, 0, 0, 255 ); pixels.show();
+		setLed( i, 255, 100, 0 ); pixels.show();
 		delay( 1000 );
 		offLamp( keys[ keyNum ][ i ] );
 		setLed( i, 0, 0, 0 ); pixels.show();
@@ -129,7 +129,7 @@ void setStage2(void)
 
 	stage = Stage::game;
 
-	setLed( showLeds[ subStage ], 100, 100, 0 ); pixels.show(); //beep( 700, 550 );
+	setLed( showLeds[ subStage ], 255, 100, 0 ); pixels.show(); //beep( 700, 550 );
 	myDFPlayer.playMp3Folder( MELODY_BEEP );
 }
 
@@ -165,7 +165,7 @@ void processStage2(const uint8_t button)
 		if( subStage >= LEDS_COUNT ){
 			setStage3();
 		}else{
-			setLed( showLeds[ subStage ], 100, 100, 0 ); pixels.show();
+			setLed( showLeds[ subStage ], 255, 100, 0 ); pixels.show();
 		}
 	}else{
 		setLed( ledNum, 0xFF, 0, 0 ); pixels.show(); delay( 500 );
@@ -194,7 +194,10 @@ void setStage3(void)
 	time = millis();
 
 	pixels.clear(); pixels.show();
+	
+	delay( 100 );
 	myDFPlayer.playMp3Folder( MELODY_SUCCESS );
+	delay( 100 );
 
 	// beep( 400, 250 );
 	for( uint8_t i = 0; i < LEDS_COUNT; i++ ) setLed( i, 0, 0xFF, 0 );
